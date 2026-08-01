@@ -3,6 +3,7 @@
 import json
 import os
 import random
+from datetime import datetime
 
 LINE = "=" * 40
 STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json")
@@ -142,22 +143,26 @@ class QuizGame:
     def __init__(self):
         self.quizzes = []
         self.best_score = None
+        self.history = []
 
     def load(self):
         """state.json 에서 퀴즈와 최고 점수를 읽는다. 파일이 없으면 기본 퀴즈를 사용한다."""
         if not os.path.exists(STATE_FILE):
             self.quizzes = default_quizzes()
             self.best_score = None
+            self.history = []
             return
         try:
             with open(STATE_FILE, encoding="utf-8") as f:
                 data = json.load(f)
             self.quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
             self.best_score = data["best_score"]
+            self.history = data["history"]
         except (OSError, ValueError, TypeError, KeyError):
             print(f"{os.path.basename(STATE_FILE)} 을 읽을 수 없어 기본 퀴즈로 시작합니다.")
             self.quizzes = default_quizzes()
             self.best_score = None
+            self.history = []
             return
         record = "기록 없음" if self.best_score is None else f"{self.best_score}점"
         print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(self.quizzes)}개, 최고 점수 {record})")
@@ -166,6 +171,7 @@ class QuizGame:
         data = {
             "quizzes": [quiz.to_dict() for quiz in self.quizzes],
             "best_score": self.best_score,
+            "history": self.history,
         }
         try:
             with open(STATE_FILE, "w", encoding="utf-8") as f:
@@ -232,6 +238,13 @@ class QuizGame:
             self.best_score = score
             print("새로운 최고 점수입니다.")
         print(LINE)
+        self.history.append(
+            {
+                "played_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "total": total,
+                "score": score,
+            }
+        )
         self.save()
 
     def add_quiz(self):
@@ -275,11 +288,18 @@ class QuizGame:
         self.save()
 
     def show_score(self):
+        """최고 점수와 최근 다섯 판의 기록을 보여준다."""
         print()
         if self.best_score is None:
             print("아직 퀴즈를 풀지 않았습니다. 먼저 퀴즈를 풀어보세요.")
             return
         print(f"최고 점수: {self.best_score}점")
+        print()
+        print(f"최근 기록 (전체 {len(self.history)}판)")
+        print("-" * 40)
+        for record in reversed(self.history[-5:]):
+            print(f"{record['played_at']}  {record['total']}문제  {record['score']}점")
+        print("-" * 40)
 
     def run(self):
         while True:
