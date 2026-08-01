@@ -132,10 +132,16 @@ class QuizGame:
             self.quizzes = default_quizzes()
             self.best_score = None
             return
-        with open(STATE_FILE, encoding="utf-8") as f:
-            data = json.load(f)
-        self.quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
-        self.best_score = data["best_score"]
+        try:
+            with open(STATE_FILE, encoding="utf-8") as f:
+                data = json.load(f)
+            self.quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
+            self.best_score = data["best_score"]
+        except (OSError, ValueError, TypeError, KeyError):
+            print(f"{os.path.basename(STATE_FILE)} 을 읽을 수 없어 기본 퀴즈로 시작합니다.")
+            self.quizzes = default_quizzes()
+            self.best_score = None
+            return
         record = "기록 없음" if self.best_score is None else f"{self.best_score}점"
         print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(self.quizzes)}개, 최고 점수 {record})")
 
@@ -144,8 +150,11 @@ class QuizGame:
             "quizzes": [quiz.to_dict() for quiz in self.quizzes],
             "best_score": self.best_score,
         }
-        with open(STATE_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        try:
+            with open(STATE_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except OSError as error:
+            print(f"저장에 실패했습니다. ({error})")
 
     def show_menu(self):
         print()
