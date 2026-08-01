@@ -99,6 +99,36 @@ def read_int(prompt, low, high):
         return value
 
 
+def play(quizzes):
+    """등록된 퀴즈를 순서대로 출제하고 맞힌 개수를 돌려준다."""
+    if not quizzes:
+        print("등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가하세요.")
+        return None
+
+    print()
+    print(f"퀴즈를 시작합니다. (총 {len(quizzes)}문제)")
+    correct = 0
+    for number, quiz in enumerate(quizzes, start=1):
+        print()
+        print("-" * 40)
+        quiz.show(number)
+        print()
+        picked = read_int("정답 입력: ", 1, 4)
+        if quiz.is_correct(picked):
+            print("정답입니다.")
+            correct += 1
+        else:
+            print(f"오답입니다. 정답은 {quiz.answer}번 {quiz.answer_text()} 입니다.")
+
+    total = len(quizzes)
+    score = round(correct / total * 100)
+    print()
+    print(LINE)
+    print(f"결과: {total}문제 중 {correct}문제 정답 ({score}점)")
+    print(LINE)
+    return correct, total, score
+
+
 def show_menu():
     print()
     print(LINE)
@@ -113,13 +143,17 @@ def show_menu():
 
 
 def main():
+    quizzes = default_quizzes()
     while True:
         show_menu()
         choice = read_int("선택: ", 1, 5)
-        if choice == 5:
+        if choice == 1:
+            play(quizzes)
+        elif choice == 5:
             print("게임을 종료합니다.")
             break
-        print("아직 준비되지 않은 기능입니다.")
+        else:
+            print("아직 준비되지 않은 기능입니다.")
 
 
 if __name__ == "__main__":
