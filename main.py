@@ -95,12 +95,14 @@ def default_quizzes():
 def load_state():
     """state.json 에서 퀴즈 목록과 최고 점수를 읽는다. 파일이 없으면 기본 퀴즈를 사용한다."""
     if not os.path.exists(STATE_FILE):
-        return default_quizzes(), 0
+        return default_quizzes(), None
     with open(STATE_FILE, encoding="utf-8") as f:
         data = json.load(f)
     quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
-    print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고 점수 {data['best_score']}점)")
-    return quizzes, data["best_score"]
+    best_score = data["best_score"]
+    record = "기록 없음" if best_score is None else f"{best_score}점"
+    print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고 점수 {record})")
+    return quizzes, best_score
 
 
 def save_state(quizzes, best_score):
@@ -179,6 +181,14 @@ def add_quiz(quizzes):
     print("퀴즈가 추가되었습니다.")
 
 
+def show_score(best_score):
+    print()
+    if best_score is None:
+        print("아직 퀴즈를 풀지 않았습니다. 먼저 퀴즈를 풀어보세요.")
+        return
+    print(f"최고 점수: {best_score}점")
+
+
 def list_quizzes(quizzes):
     print()
     if not quizzes:
@@ -211,17 +221,23 @@ def main():
         show_menu()
         choice = read_int("선택: ", 1, 5)
         if choice == 1:
-            play(quizzes)
+            result = play(quizzes)
+            if result is not None:
+                score = result[2]
+                if best_score is None or score > best_score:
+                    best_score = score
+                    print("새로운 최고 점수입니다.")
+                save_state(quizzes, best_score)
         elif choice == 2:
             add_quiz(quizzes)
             save_state(quizzes, best_score)
         elif choice == 3:
             list_quizzes(quizzes)
-        elif choice == 5:
+        elif choice == 4:
+            show_score(best_score)
+        else:
             print("게임을 종료합니다.")
             break
-        else:
-            print("아직 준비되지 않은 기능입니다.")
 
 
 if __name__ == "__main__":
