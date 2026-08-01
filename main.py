@@ -2,6 +2,7 @@
 
 import json
 import os
+import random
 
 LINE = "=" * 40
 STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json")
@@ -169,16 +170,20 @@ class QuizGame:
         print(LINE)
 
     def play(self):
-        """등록된 퀴즈를 순서대로 출제하고 최고 점수를 갱신한다."""
+        """고른 개수만큼 무작위로 출제하고 최고 점수를 갱신한다."""
         if not self.quizzes:
             print()
             print("등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가하세요.")
             return
 
         print()
-        print(f"퀴즈를 시작합니다. (총 {len(self.quizzes)}문제)")
+        total = read_int(f"몇 문제를 풀까요? (1-{len(self.quizzes)}): ", 1, len(self.quizzes))
+        selected = random.sample(self.quizzes, total)
+
+        print()
+        print(f"퀴즈를 시작합니다. (총 {total}문제)")
         correct = 0
-        for number, quiz in enumerate(self.quizzes, start=1):
+        for number, quiz in enumerate(selected, start=1):
             print()
             print("-" * 40)
             quiz.show(number)
@@ -190,7 +195,6 @@ class QuizGame:
             else:
                 print(f"오답입니다. 정답은 {quiz.answer}번 {quiz.answer_text()} 입니다.")
 
-        total = len(self.quizzes)
         score = round(correct / total * 100)
         print()
         print(LINE)
