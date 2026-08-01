@@ -3,6 +3,28 @@
 LINE = "=" * 40
 
 
+class Quiz:
+    """문제 하나를 표현한다. 정답은 선택지 번호(1-4)로 관리한다."""
+
+    def __init__(self, question, choices, answer):
+        self.question = question
+        self.choices = choices
+        self.answer = answer
+
+    def show(self, number):
+        print(f"[문제 {number}]")
+        print(self.question)
+        print()
+        for i, choice in enumerate(self.choices, start=1):
+            print(f"{i}. {choice}")
+
+    def is_correct(self, picked):
+        return picked == self.answer
+
+    def answer_text(self):
+        return self.choices[self.answer - 1]
+
+
 def read_int(prompt, low, high):
     """low 이상 high 이하의 정수를 받을 때까지 다시 묻는다."""
     while True:
