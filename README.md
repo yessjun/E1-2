@@ -161,3 +161,51 @@ state.json 을 읽을 수 없어 기본 퀴즈로 시작합니다.
 기능 하나를 끝낼 때마다 커밋했고, 퀴즈 풀기는 `feature/quiz-play` 브랜치에서 만든 뒤 `main` 에 병합했습니다.
 
 ![git log 그래프](docs/screenshots/git-log.png)
+
+## 저장소 복제 실습
+
+README를 올린 뒤에 저장소를 다른 디렉터리로 복제해 봤습니다.
+
+```bash
+$ git clone https://github.com/yessjun/E1-2.git
+Cloning into 'E1-2'...
+remote: Enumerating objects: 47, done.
+remote: Counting objects: 100% (47/47), done.
+remote: Compressing objects: 100% (33/33), done.
+remote: Total 47 (delta 26), reused 35 (delta 14), pack-reused 0 (from 0)
+Receiving objects: 100% (47/47), 12.88 KiB | 6.44 MiB/s, done.
+Resolving deltas: 100% (26/26), done.
+```
+
+복제본에는 `state.json` 이 없어서 실행하면 기본 퀴즈로 시작합니다. 그 내용을 README에 한 줄 넣고 올렸습니다.
+
+```bash
+$ git commit -am "docs: 첫 실행 동작 안내 추가"
+[main 97dfab0] docs: 첫 실행 동작 안내 추가
+ 1 file changed, 2 insertions(+)
+
+$ git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 532 bytes | 532.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/yessjun/E1-2.git
+   99f7807..97dfab0  main -> main
+```
+
+원래 작업하던 디렉터리로 돌아와 받아왔습니다.
+
+```bash
+$ git pull
+From https://github.com/yessjun/E1-2
+   99f7807..97dfab0  main       -> origin/main
+Updating 99f7807..97dfab0
+Fast-forward
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
+```
+
+`99f7807` 에 머물러 있던 로컬이 `97dfab0` 까지 따라왔습니다. 위 실행 방법의 첫 실행 안내가 이때 들어온 줄입니다.
