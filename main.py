@@ -1,6 +1,10 @@
 """터미널에서 동작하는 사지선다 퀴즈 게임."""
 
+import json
+import os
+
 LINE = "=" * 40
+STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json")
 
 
 class Quiz:
@@ -23,6 +27,13 @@ class Quiz:
 
     def answer_text(self):
         return self.choices[self.answer - 1]
+
+    def to_dict(self):
+        return {"question": self.question, "choices": self.choices, "answer": self.answer}
+
+    @staticmethod
+    def from_dict(data):
+        return Quiz(data["question"], data["choices"], data["answer"])
 
 
 def default_quizzes():
@@ -81,6 +92,32 @@ def default_quizzes():
     ]
 
 
+def load_state():
+    """state.json 에서 퀴즈 목록과 최고 점수를 읽는다. 파일이 없으면 기본 퀴즈를 사용한다."""
+    if not os.path.exists(STATE_FILE):
+        return default_quizzes(), 0
+    with open(STATE_FILE, encoding="utf-8") as f:
+        data = json.load(f)
+    quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
+    print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고 점수 {data['best_score']}점)")
+    return quizzes, data["best_score"]
+
+
+def save_state(quizzes, best_score):
+    data = {"quizzes": [quiz.to_dict() for quiz in quizzes], "best_score": best_score}
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def read_text(prompt):
+    """빈 문자열이 아닌 입력을 받을 때까지 다시 묻는다."""
+    while True:
+        raw = input(prompt).strip()
+        if raw:
+            return raw
+        print("입력이 비어 있습니다. 다시 입력하세요.")
+
+
 def read_int(prompt, low, high):
     """low 이상 high 이하의 정수를 받을 때까지 다시 묻는다."""
     while True:
@@ -129,6 +166,19 @@ def play(quizzes):
     return correct, total, score
 
 
+def add_quiz(quizzes):
+    """문제, 선택지 4개, 정답 번호를 입력받아 목록에 추가한다."""
+    print()
+    print("새로운 퀴즈를 추가합니다.")
+    print()
+    question = read_text("문제를 입력하세요: ")
+    choices = [read_text(f"선택지 {i}: ") for i in range(1, 5)]
+    answer = read_int("정답 번호 (1-4): ", 1, 4)
+    quizzes.append(Quiz(question, choices, answer))
+    print()
+    print("퀴즈가 추가되었습니다.")
+
+
 def show_menu():
     print()
     print(LINE)
@@ -143,12 +193,15 @@ def show_menu():
 
 
 def main():
-    quizzes = default_quizzes()
+    quizzes, best_score = load_state()
     while True:
         show_menu()
         choice = read_int("선택: ", 1, 5)
         if choice == 1:
             play(quizzes)
+        elif choice == 2:
+            add_quiz(quizzes)
+            save_state(quizzes, best_score)
         elif choice == 5:
             print("게임을 종료합니다.")
             break
