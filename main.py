@@ -166,7 +166,8 @@ class QuizGame:
         print("2. 퀴즈 추가")
         print("3. 퀴즈 목록")
         print("4. 점수 확인")
-        print("5. 종료")
+        print("5. 퀴즈 삭제")
+        print("6. 종료")
         print(LINE)
 
     def play(self):
@@ -230,6 +231,20 @@ class QuizGame:
             print(f"[{number}] {quiz.question}")
         print("-" * 40)
 
+    def delete_quiz(self):
+        """번호로 퀴즈 하나를 골라 목록에서 지운다."""
+        if not self.quizzes:
+            print()
+            print("등록된 퀴즈가 없습니다.")
+            return
+        self.list_quizzes()
+        print()
+        number = read_int(f"삭제할 퀴즈 번호 (1-{len(self.quizzes)}): ", 1, len(self.quizzes))
+        removed = self.quizzes.pop(number - 1)
+        print()
+        print(f"삭제했습니다: {removed.question}")
+        self.save()
+
     def show_score(self):
         print()
         if self.best_score is None:
@@ -240,7 +255,7 @@ class QuizGame:
     def run(self):
         while True:
             self.show_menu()
-            choice = read_int("선택: ", 1, 5)
+            choice = read_int("선택: ", 1, 6)
             if choice == 1:
                 self.play()
             elif choice == 2:
@@ -249,6 +264,8 @@ class QuizGame:
                 self.list_quizzes()
             elif choice == 4:
                 self.show_score()
+            elif choice == 5:
+                self.delete_quiz()
             else:
                 print("게임을 종료합니다.")
                 break
