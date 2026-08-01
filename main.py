@@ -179,6 +179,19 @@ def add_quiz(quizzes):
     print("퀴즈가 추가되었습니다.")
 
 
+def list_quizzes(quizzes):
+    print()
+    if not quizzes:
+        print("등록된 퀴즈가 없습니다.")
+        return
+    print(f"등록된 퀴즈 목록 (총 {len(quizzes)}개)")
+    print()
+    print("-" * 40)
+    for number, quiz in enumerate(quizzes, start=1):
+        print(f"[{number}] {quiz.question}")
+    print("-" * 40)
+
+
 def show_menu():
     print()
     print(LINE)
@@ -202,6 +215,8 @@ def main():
         elif choice == 2:
             add_quiz(quizzes)
             save_state(quizzes, best_score)
+        elif choice == 3:
+            list_quizzes(quizzes)
         elif choice == 5:
             print("게임을 종료합니다.")
             break
